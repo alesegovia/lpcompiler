@@ -1,0 +1,245 @@
+\documentclass[11pt, a4paper]{article}
+%\usepackage{geometry}                % See geometry.pdf to learn the layout options. There are lots.
+%\geometry{letterpaper}                   % ... or a4paper or a5paper or ... 
+%\geometry{landscape}                % Activate for for rotated page geometry
+%\usepackage[parfill]{parskip}    % Activate to begin paragraphs with an empty line rather than an indent
+\usepackage{graphicx}
+\usepackage{amssymb}
+\usepackage{epstopdf}
+\DeclareGraphicsRule{.tif}{png}{.png}{`convert #1 `dirname #1`/`basename #1 .tif`.png}
+
+\title{The L+ Programming Language}
+\author{Language Designed by: \\ Leonardo Val \& Mat\'ias Hernandez \\ \\ Grammar and Implementation by: \\ Alejandro Segovia \& Emilio Pombo}
+%\date{}                                           % Activate to display a given date or no date
+
+\parskip 0.25cm
+\begin{document}
+\maketitle
+\section{Introduction}
+
+This document describes the L+ programming language from a developer's point of view. It is not a document to learn how to program. Throughout this document, it is assumed that the reader is familiar with the C programming language or other C-based languages like C++, Java or even C\#.
+
+\section{Keywords}
+\begin{center}
+\begin{tabular}{c c c c c}
+void & int & float & bool & string \\
+true & false & if & else & while \\
+return
+\end{tabular}
+\end{center}
+
+\section{Data Types}
+
+L+ is a strongly-typed programming language. It includes a type system composed of the following types:
+
+\begin{enumerate}
+\item \emph{int} -- Integer data type.
+\item \emph{float} -- Single precision data type for storing real numbers.
+\item \emph{string} -- Built-in string type for managing character sequences.
+\item \emph{bool} -- Boolean data type (true/false).
+\end{enumerate}
+
+There is no automatic conversion between types, except for operations involving a \emph{float} operand and an \emph{int} operand. In this case the \emph{int} operand is temporarily ``promoted" to \emph{float} to perform the operation. The result is always a \emph{float}\footnote{This rule is known as \emph{type promotion}.}.
+
+No other data types are promoted in L+ operations. Conversions must be done explicitly using the standard library's conversion functions.
+
+\section{Variables and Scoping}
+
+Variables can be declared to be of any of the previously defined data types. L+ does not include any mechanisms to define new data types (\emph{structs}, \emph{classes} are not supported).
+
+There are two types of variables in L+: global and local. Global variables are defined at file scope (not contained in any functions) and are visible to all functions defined after said variable.
+
+Local variables are defined inside a function and are only visible to said function. Local variable scoping rules in L+ are very similar to C's; Furthermore, L+ allows the programmer to define arbitrary scopes where variables may be redeclared with a different type.
+
+When using a variable that exists at different scopes, the innermost one is always the one referenced.
+
+Consider the following program:
+\begin{center}
+\line(1,0){380}
+\end{center}
+\begin{verbatim}
+int number = 1; // Ok, number is an int.
+
+{
+    string number = "One"; // Ok as well, number is a 
+                           // string.
+    print(number); // Prints "One"
+}
+
+print(number); // Compile error, number is an int and print 
+               // must receive a string parameter as 
+               // argument.
+\end{verbatim}
+
+\begin{center}
+\line(1,0){380}
+\end{center}
+
+
+Finally, local variables can be initialized upon declaration, just like in C. Global variables cannot be initialized upon declaration.
+
+\section{Control Structures}
+
+L+ offers a range of control structures that help you control program flow.
+
+The structures for the current version include:
+
+\begin{enumerate}
+\item \emph{if} -- Branching construct.
+\item \emph{else} -- Branching construct for alternative paths.
+\item \emph{while} -- Looping construct.
+\end{enumerate}
+
+The bodies of the \emph{if}, \emph{else} and \emph{while} constructs define new scopes where variable names may overlap with variables previously defined in an outer scope.
+
+\section{Functions}
+
+L+ allows declaring functions in a similar fashion to C.
+
+\begin{verbatim}
+type function_name ( [optional parameters] )
+{
+    (statements)
+}
+\end{verbatim}
+
+Functions may receive zero or more parameters. Each parameter must specify its data type.
+
+All functions must return a value, except when the return type is declared as the special type: \emph{void}.
+
+Functions are called using their name and specifying the arguments. If no arguments are to be passed to the function, the programmer must use an empty parameter list: ``()"\footnote{Please refer to the L+ Grammar.}.
+
+All L+ programs must contain a special \emph{main} function with the following signature:
+
+\begin{verbatim}
+void main()
+{
+    (optional statements)
+}
+\end{verbatim}
+
+This function declares the entry point for the program.
+
+\section{The L+ Standard Library}
+
+The L+ standard library provides a series of convenience functions to convert between data types and to perform I/O. The default functions included in the library are:
+
+\begin{enumerate}
+\item \emph{void print(string message)} -- Print a string to stdout.
+\item \emph{string read()} -- Read a string from stdin. This function buffers characters until a newline character is read.
+\item \emph{int trunc(float value)} -- Truncate a floating point number.
+\item \emph{string toString(float value)} -- Convert a floating point number to a string. Because of int-to-float promotion, this function works on integer data types as well.
+\item \emph{int toInt(string str)} -- Convert a string data type to an integer data type.
+\item \emph{float toFloat(string str)} -- Convert a string type to a floating point real number.
+\end{enumerate}
+
+\newpage
+\section{The L+ Grammar}
+
+This section presents the L+ Grammar \footnote{The grammar is specified in the \emph{samp.y} configuration file in the L+ source code.}.
+
+The starting symbol is ``program". NUM, REAL and STRING are lexer constructs. NUM refers to an integer number, REAL to a floating point number and STRING to any character sequence contained between quotes.
+
+\begin{verbatim}
+program :: function
+        | function program
+        | declaration
+        | declaration program
+
+function :: type <id> ( args ) body
+         | type <id> () body
+       
+declaration :: type <id> ;
+            | type <id> = exp ;
+ 
+args :: type <id>
+     | type <id> , args
+
+params :: exp
+       | exp , params
+
+exp : NUM
+    | REAL
+    | ( exp )
+    | exp + exp
+    | exp - exp
+    | exp * exp
+    | exp / exp
+    | true
+    | false
+    | ! exp
+    | exp == exp
+    | exp != exp
+    | exp || exp
+    | exp && exp
+    | exp < exp
+    | exp <= exp
+    | exp > exp
+    | exp >= exp
+    | STRING
+    | fcall
+
+stmtlst :: 
+        | stmt stmtlst
+
+stmt :: declaration
+     | if ( exp ) stmt
+     | if ( exp ) stmt else stmt
+     | while ( exp ) stmt
+     | body
+     | fcall ;
+     | <id> = exp ;
+     | return exp ;
+
+body :: { stmtlist }
+     | { }
+
+fcall :: <id> ( params )
+      | <id> ( )
+
+type :: BOOL
+     | INT
+     | FLOAT
+     | STRING
+     | VOID
+
+\end{verbatim}
+
+\newpage
+\section{Putting it all Together: a complete example}
+
+This program reads a number from stdin, calculates its corresponding Fibonacci number and prints it to stdout.
+
+\begin{verbatim}
+// Calculate the Fibonacci number for n
+int fibo(int n)
+{
+    if (n == 0)
+    {
+        return 0;
+    }
+
+    if (n == 1)
+    {
+        return 1;
+    }
+
+    return fibo(n-1) + fibo(n-2);
+}
+
+// Program fibo.lp
+// Read a number, calculate the Fibonacci number for said number
+// and print a message with the result.
+void main()
+{
+    print("Enter number to calculate the Fibonacci number for:");
+    string nStr = read();
+
+    int f = fibo(toInt(nStr));
+    string s = toString(f);
+
+    print("The Fibonacci number for " + nStr + " is: " + s);
+}
+\end{verbatim}
+
+\end{document}  
