@@ -12,9 +12,9 @@ This project was developed by Emilio Pombo and I (Alejandro Segovia) as a mandat
 
 We believe this project could be useful to anyone attending a compilers course, interested in compilers or just curious about how a compiler might work internally.
 
-The language our compiler takes as input, called L+, supports most constructs from C (variables, branches, loops, functions, recursion and I/O) albeit with some limitations and some additions. The L+ compiler generates Java Bytecode. L+ programs can be run on any platform with a Java VM installed.
+The language our compiler takes as input, called L+, supports most constructs from C (variables, branches, loops, functions, recursion and I/O) albeit with some limitations. The language does sport some additions instead. The L+ compiler generates Java Bytecode. L+ programs can be run on any platform with a Java VM installed.
 
-This program was developed a long time ago, and this was both Emilio and I's second largest C++ program at the time. Consequently, the code should not be considered good C++ programming style.
+This program was developed a long time ago, and this was my second largest C++ program at the time. Consequently, the code should not be considered good C++ programming style.
 
 This program is Free Software, licensed under the GPLv3. Feel free to download the code, explore how it works, tweak it and redistribute it to your friends.
 
@@ -23,7 +23,8 @@ The following section presents some examples of the L+ programming language in a
 L+ Language
 ===========
 
-Hello World
+Hello World:
+
 L+ should look familiar to regular users of C-like languages. Here's the mandatory "hello world" example in L+:
 
 ```
@@ -34,7 +35,8 @@ void main()
 }
 ```
 
-Fibonacci
+Fibonacci:
+
 Here's a more elaborate example that reads a number from stdin and calculates it's corresponding Fibonacci number. This example illustrates some core capabilities of L+, including I/O, functions, recursion, branching and string processing:
 
 ```
